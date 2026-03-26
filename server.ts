@@ -8,13 +8,13 @@ const PORT = 3000;
 
 // DART Stations
 const stations = [
-  { id: 's1', name: 'Kimara', lat: -6.7865, lng: 39.1825 },
-  { id: 's2', name: 'Ubungo', lat: -6.7905, lng: 39.2155 },
-  { id: 's3', name: 'Magomeni', lat: -6.8045, lng: 39.2565 },
-  { id: 's4', name: 'Fire', lat: -6.8115, lng: 39.2735 },
-  { id: 's5', name: 'Kivukoni', lat: -6.8185, lng: 39.2965 },
-  { id: 's6', name: 'Gerezani', lat: -6.8225, lng: 39.2845 },
-  { id: 's7', name: 'Morocco', lat: -6.7775, lng: 39.2565 },
+  { id: 's1', name: 'Kimara', lat: -6.7865, lng: 39.1825, crowdLevel: 'High' },
+  { id: 's2', name: 'Ubungo', lat: -6.7905, lng: 39.2155, crowdLevel: 'Medium' },
+  { id: 's3', name: 'Magomeni', lat: -6.8045, lng: 39.2565, crowdLevel: 'Low' },
+  { id: 's4', name: 'Fire', lat: -6.8115, lng: 39.2735, crowdLevel: 'Medium' },
+  { id: 's5', name: 'Kivukoni', lat: -6.8185, lng: 39.2965, crowdLevel: 'High' },
+  { id: 's6', name: 'Gerezani', lat: -6.8225, lng: 39.2845, crowdLevel: 'Low' },
+  { id: 's7', name: 'Morocco', lat: -6.7775, lng: 39.2565, crowdLevel: 'Medium' },
 ];
 
 // Routes (sequences of station IDs)
@@ -109,6 +109,13 @@ setInterval(() => {
       }
     }
   });
+
+  // Randomize station crowd level occasionally
+  if (Math.random() > 0.8) {
+    const levels = ['Low', 'Medium', 'High'];
+    const randomStation = stations[Math.floor(Math.random() * stations.length)];
+    randomStation.crowdLevel = levels[Math.floor(Math.random() * levels.length)];
+  }
 }, 1000);
 
 async function startServer() {
@@ -135,6 +142,7 @@ async function startServer() {
       return { ...bus, ...pos };
     });
     socket.emit('bus_update', busData);
+    socket.emit('station_update', stations);
 
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id);
@@ -148,6 +156,7 @@ async function startServer() {
       return { ...bus, ...pos };
     });
     io.emit('bus_update', busData);
+    io.emit('station_update', stations);
   }, 2000);
 
   // Vite middleware for development

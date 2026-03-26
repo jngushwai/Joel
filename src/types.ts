@@ -3,6 +3,7 @@ export interface Station {
   name: string;
   lat: number;
   lng: number;
+  crowdLevel: 'Low' | 'Medium' | 'High';
 }
 
 export interface Route {

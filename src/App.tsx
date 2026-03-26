@@ -4,7 +4,8 @@ import { Bus, Route, Station } from './types';
 import Map from './components/Map';
 import DashboardStats from './components/DashboardStats';
 import BusList from './components/BusList';
-import { Bus as BusIcon, Menu, Bell, Search, UserCircle, MapPin, Filter, X } from 'lucide-react';
+import StationList from './components/StationList';
+import { Bus as BusIcon, Menu, Bell, Search, UserCircle, MapPin, Filter, X, List, Map as MapIcon } from 'lucide-react';
 
 export default function App() {
   const [stations, setStations] = useState<Station[]>([]);
@@ -13,6 +14,7 @@ export default function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [selectedRouteId, setSelectedRouteId] = useState<string>('all');
   const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
+  const [view, setView] = useState<'buses' | 'stations'>('buses');
 
   useEffect(() => {
     // Fetch static network data
@@ -36,6 +38,10 @@ export default function App() {
 
     socket.on('bus_update', (data: Bus[]) => {
       setBuses(data);
+    });
+
+    socket.on('station_update', (data: Station[]) => {
+      setStations(data);
     });
 
     return () => {
@@ -202,9 +208,33 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Column: Bus List */}
-          <div className="lg:col-span-1 h-[600px] lg:h-auto">
-            <BusList buses={filteredBuses} routes={routes} stations={stations} />
+          {/* Right Column: Bus/Station List */}
+          <div className="lg:col-span-1 h-[600px] lg:h-auto flex flex-col gap-4">
+            <div className="flex bg-slate-200 p-1 rounded-lg">
+              <button 
+                onClick={() => setView('buses')} 
+                className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all ${view === 'buses' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-800'}`}
+              >
+                <BusIcon className="w-4 h-4" /> Buses
+              </button>
+              <button 
+                onClick={() => setView('stations')} 
+                className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all ${view === 'stations' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-800'}`}
+              >
+                <MapIcon className="w-4 h-4" /> Stations
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              {view === 'buses' ? (
+                <BusList buses={filteredBuses} routes={routes} stations={stations} />
+              ) : (
+                <StationList 
+                  stations={filteredStations} 
+                  selectedStationId={selectedStationId} 
+                  onStationClick={(id) => setSelectedStationId(id)} 
+                />
+              )}
+            </div>
           </div>
         </div>
       </main>

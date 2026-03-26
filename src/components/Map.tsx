@@ -31,6 +31,28 @@ const selectedStationIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
+const createStationIcon = (crowdLevel: string, isSelected: boolean) => {
+  const crowdColor = crowdLevel === 'High' ? '#ef4444' : crowdLevel === 'Medium' ? '#f59e0b' : '#10b981';
+  const strokeColor = isSelected ? '#2563eb' : '#ffffff';
+  const strokeWidth = isSelected ? '3' : '2';
+  const size = isSelected ? 32 : 24;
+  const anchor = isSelected ? 16 : 12;
+
+  const svgIcon = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
+      <rect x="2" y="2" width="20" height="20" rx="6" fill="${crowdColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}"/>
+      <circle cx="12" cy="12" r="4" fill="white"/>
+    </svg>
+  `;
+  
+  return new L.DivIcon({
+    html: svgIcon,
+    className: 'station-marker',
+    iconSize: [size, size],
+    iconAnchor: [anchor, anchor],
+  });
+};
+
 // Custom Bus Icon Generator
 const createBusIcon = (routeColor: string, crowdLevel: string) => {
   const crowdColor = crowdLevel === 'High' ? '#ef4444' : crowdLevel === 'Medium' ? '#f59e0b' : '#10b981';
@@ -105,13 +127,14 @@ export default function LiveMap({ stations, routes, buses, onRouteClick, onStati
           <Marker 
             key={station.id} 
             position={[station.lat, station.lng]}
-            icon={station.id === selectedStationId ? selectedStationIcon : stationIcon}
+            icon={createStationIcon(station.crowdLevel, station.id === selectedStationId)}
             eventHandlers={{
               click: () => onStationClick?.(station.id)
             }}
           >
             <Popup>
               <div className="font-semibold text-slate-800">{station.name} Station</div>
+              <div className="text-sm text-slate-600 mt-1">Crowd Level: <span className={`font-medium ${station.crowdLevel === 'High' ? 'text-red-500' : station.crowdLevel === 'Medium' ? 'text-amber-500' : 'text-emerald-500'}`}>{station.crowdLevel}</span></div>
               <div className="text-xs text-slate-500 mt-1">Click to view buses here</div>
             </Popup>
           </Marker>
