@@ -1,0 +1,5 @@
+{
+  "name": "DART Smart BRT Dashboard",
+  "description": "Real-time dashboard for Dar Rapid Transit (DART) operators and users to monitor stations, bus arrivals, and live map.",
+  "requestFramePermissions": []
+}
